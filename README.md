@@ -60,10 +60,6 @@ the path has processed since last time.
 
 2. There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points you have used so you can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. You would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
 
-## Tips
-
-A really helpful resource for doing this project and creating smooth trajectories was using http://kluge.in-chemnitz.de/opensource/spline/, the spline function is in a single hearder file is really easy to use.
-
 ---
 
 ## Dependencies
@@ -86,55 +82,21 @@ A really helpful resource for doing this project and creating smooth trajectorie
     cd uWebSockets
     git checkout e94b6e1
     ```
-
-## Editor Settings
-
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
-
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
-
-## Code Style
-
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
-
-## Project Instructions and Rubric
-
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+Compilation and self-driving
+The code compiles correctly. There is no error when use cmake and make to compile the files in src.
 
 
-## Call for IDE Profiles Pull Requests
 
-Help your fellow students!
+The car is able to drive at least 6.84 miles without incident.. See the following screen shoot. And the car drives according to the speed limit. I set the limit to 45 mph. 
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
-that students don't feel pressured to use one IDE or another.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+During the run, Max Acceleration and Jerk are not Exceeded. And car does not have collisions. Also the car stays in its lane, except for the time between changing lanes. As shown above the car changes lane when there it is proper.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
+Reflection of path generation 
+To generate the path, please look at line 254-289. First , we need to find the cars near our car. With that information, we can get to know whether there is a car ahead, on the near left behind and right behind.
 
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
+From line 292-309, we defined the rule of action if there is a car ahead of our car. First we will try to see whether the nearby left lane is occupied, if not we will merge to the left. If the left lane is not available, we then go to see whether the right lane is available. If both left and right lane are not available, we will just slow down our car by putting the desired decrease of speed into Speed_diff. At last, if we find that no car is ahead of us, we may want to accelerate our car. So an additional speed increment is put into Speed_diff. Later we will use this parameter Speed_diff to decide the reference speed of the car.
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
+From line 401-407, as mentioned in the last paragraph, we will change the reference speed of our car by adding the Speed_diff into the ref_vel. If the resulting ref_vel is exceeding the speed limit, will just set it equal to speed limit, if the resulting ref_vel is too small, then make it into smallest speed increment.
